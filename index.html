@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>我的记账本</title>
+  <meta name="theme-color" content="#0b9a6e">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <style>
+    :root {
+      --green: #0b9a6e;
+      --green-dark: #087a57;
+      --bg: #f6f7f9;
+      --card: #ffffff;
+      --line: #e6e8eb;
+      --text: #20242a;
+      --muted: #7a828c;
+      --expense: #e5484d;
+      --income: #0b9a6e;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text);
+      font: 15px/1.5 -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+    body { padding-bottom: 64px; }
+    .app { max-width: 520px; margin: 0 auto; }
+    header { position: sticky; top: 0; z-index: 10; background: var(--green); color: #fff;
+      padding: 14px 18px 16px; border-radius: 0 0 18px 18px; }
+    header .row { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; }
+    header h1 { margin: 0; font-size: 18px; font-weight: 700; }
+    header .sub { opacity: .92; font-size: 12px; margin-top: 2px; }
+    header .month { text-align: right; }
+    header .month .label { font-size: 11px; opacity: .85; }
+    header .month .value { font-size: 22px; font-weight: 700; }
+    main { padding: 14px 16px 20px; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+      padding: 14px; margin-bottom: 14px; }
+    .card h3 { margin: 0 0 12px; font-size: 15px; }
+    label { display: block; font-size: 12px; color: var(--muted); margin: 10px 0 4px; }
+    input, select, button { font: inherit; color: inherit; }
+    input[type="date"], input[type="month"], input[type="text"], input[type="number"], select {
+      width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px;
+      background: #fff; font-size: 15px; }
+    input:focus, select:focus { outline: 2px solid rgba(11,154,110,.35); border-color: var(--green); }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .seg { display: flex; gap: 8px; margin-top: 4px; }
+    .seg button { flex: 1; padding: 9px; border: 1px solid var(--line); border-radius: 10px;
+      background: #fff; font-size: 14px; }
+    .seg button.on { background: var(--green); border-color: var(--green); color: #fff; }
+    .amount-input { font-size: 24px; font-weight: 700; }
+    .btn-primary, .btn-ghost { width: 100%; padding: 12px; border: none; border-radius: 12px; font-size: 15px; }
+    .btn-primary { background: var(--green); color: #fff; font-weight: 600; }
+    .btn-primary:active { background: var(--green-dark); }
+    .btn-ghost { background: #eef6f3; color: var(--green-dark); font-weight: 600; }
+    .muted { color: var(--muted); font-size: 13px; }
+    .expense { color: var(--expense); }
+    .income { color: var(--income); }
+    .list-item { display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      padding: 10px 0; border-bottom: 1px solid #f0f1f3; }
+    .list-item:last-child { border-bottom: none; }
+    .list-item .main { min-width: 0; flex: 1; }
+    .list-item .cat { font-weight: 600; }
+    .list-item .note { color: var(--muted); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .list-item .amount { font-weight: 700; white-space: nowrap; }
+    .list-item .del { border: none; background: none; color: var(--muted); font-size: 20px; padding: 4px 6px; cursor: pointer; }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .metrics .m { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 6px; text-align: center; }
+    .metrics .m .v { font-size: 15px; font-weight: 700; }
+    .metrics .m .l { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .chart-box { position: relative; height: 220px; margin-top: 6px; }
+    .pill { display: inline-block; background: #eef6f3; color: var(--green-dark);
+      border-radius: 999px; padding: 3px 10px; font-size: 12px; }
+    .bottomnav { position: fixed; left: 0; right: 0; bottom: 0; background: #fff;
+      border-top: 1px solid var(--line); display: flex; padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); }
+    .bottomnav button { flex: 1; background: none; border: none; font-size: 11px; color: var(--muted);
+      display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 0; }
+    .bottomnav button.on { color: var(--green); font-weight: 600; }
+    .bottomnav .ic { font-size: 20px; }
+    .tab { display: none; }
+    .tab.on { display: block; }
+    #toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: 84px; z-index: 30;
+      background: #222; color: #fff; padding: 9px 16px; border-radius: 999px; font-size: 14px;
+      opacity: 0; pointer-events: none; transition: opacity .2s; max-width: 90%; text-align: center; }
+    #toast.show { opacity: 1; }
+    .hint { font-size: 13px; color: var(--muted); }
+    .steps { margin: 6px 0 0; padding-left: 20px; font-size: 14px; }
+    .steps li { margin: 4px 0; }
+    .toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f0f1f3; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="row">
+        <div>
+          <h1>我的记账本</h1>
+          <div class="sub" id="header-sub">· 数据只存在你的手机上</div>
+        </div>
+        <div class="month">
+          <div class="label" id="month-label">本月支出</div>
+          <div class="value" id="month-spend">¥0.00</div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- 记一笔 -->
+      <section class="tab on" id="tab-add">
+        <div class="card">
+          <h3>记一笔</h3>
+          <label>日期</label>
+          <input type="date" id="f-date">
+          <label>类型</label>
+          <div class="seg" id="f-type">
+            <button class="on" data-t="支出">支出</button>
+            <button data-t="收入">收入</button>
+          </div>
+          <label>金额（元）</label>
+          <input type="number" id="f-amount" class="amount-input" inputmode="decimal" step="0.01" min="0" placeholder="0.00">
+          <label>分类</label>
+          <select id="f-cat"></select>
+          <label>事项 / 备注</label>
+          <input type="text" id="f-note" placeholder="例如：午饭、地铁">
+          <div style="height:14px"></div>
+          <button class="btn-primary" id="add-btn">添加这笔</button>
+        </div>
+        <div class="card">
+          <h3>最近 5 笔</h3>
+          <div id="recent-list"></div>
+        </div>
+      </section>
+
+      <!-- 明细 -->
+      <section class="tab" id="tab-list">
+        <div class="card">
+          <h3>筛选</h3>
+          <div class="grid2">
+            <div>
+              <label>月份</label>
+              <input type="month" id="s-month">
+            </div>
+            <div>
+              <label>类型</label>
+              <select id="s-type">
+                <option>全部</option><option>支出</option><option>收入</option>
+              </select>
+            </div>
+          </div>
+          <label>分类</label>
+          <select id="s-cat"><option>全部</option></select>
+        </div>
+        <div class="card">
+          <h3 id="list-total">明细</h3>
+          <div id="list-body"></div>
+        </div>
+      </section>
+
+      <!-- 统计 -->
+      <section class="tab" id="tab-stats">
+        <div class="card">
+          <h3>统计范围</h3>
+          <div class="grid2">
+            <div>
+              <label>时间范围</label>
+              <select id="st-range">
+                <option>本月</option><option>近 3 月</option><option>今年</option><option>全部</option>
+              </select>
+            </div>
+            <div>
+              <label>统计方式</label>
+              <select id="st-period">
+                <option>按日</option><option>按周</option><option>按月</option><option>按年</option>
+              </select>
+            </div>
+          </div>
+          <div class="metrics" id="stats-metrics" style="margin-top:12px"></div>
+        </div>
+        <div class="card">
+          <h3>支出趋势</h3>
+          <div class="chart-box"><canvas id="trend-chart"></canvas></div>
+        </div>
+        <div class="card">
+          <h3>分类占比</h3>
+          <div class="chart-box"><canvas id="cat-chart"></canvas></div>
+        </div>
+      </section>
+
+      <!-- 同步 / 导出 -->
+      <section class="tab" id="tab-sync">
+        <div class="card">
+          <h3>同步到电脑</h3>
+          <p class="hint">你的数据一直存在手机本地。要把数据给电脑，就生成一个文件发过去，电脑端会自动接收并更新显示。</p>
+          <div style="height:10px"></div>
+          <button class="btn-primary" id="share-btn">📤 生成文件并发送到电脑</button>
+          <div style="height:10px"></div>
+          <button class="btn-ghost" id="download-btn">⬇️ 下载 .xlsx 到手机</button>
+          <div style="height:10px"></div>
+          <button class="btn-ghost" id="json-btn">⬇️ 下载备份 (.json)</button>
+        </div>
+        <div class="card">
+          <h3>电脑端怎么接收</h3>
+          <ol class="steps">
+            <li>电脑上双击运行 <b>run.bat</b>。</li>
+            <li>手机连上电脑热点（或同一 WiFi）。</li>
+            <li>把你生成的文件发到电脑（微信/QQ/浏览器上传都行），电脑会自动更新并显示。</li>
+          </ol>
+          <div class="hint" id="pc-url" style="margin-top:8px"></div>
+        </div>
+        <div class="card">
+          <h3>数据</h3>
+          <div class="toggle-row"><span>当前记录数</span><span id="rec-count">0</span></div>
+          <div class="toggle-row" style="border:none">
+            <span class="expense">清空本机数据</span>
+            <button class="btn-ghost" id="clear-btn" style="width:auto;padding:6px 14px">清空</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottomnav">
+      <button data-tab="tab-add" class="on"><span class="ic">✏️</span>记一笔</button>
+      <button data-tab="tab-list"><span class="ic">📋</span>明细</button>
+      <button data-tab="tab-stats"><span class="ic">📊</span>统计</button>
+      <button data-tab="tab-sync"><span class="ic">🔁</span>同步</button>
+    </nav>
+  </div>
+  <div id="toast"></div>
+
+  <script src="chart.umd.js"></script>
+  <script src="xlsx.full.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
