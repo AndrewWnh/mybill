@@ -249,6 +249,42 @@ function downloadBlob(blob, name) {
   setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 800);
 }
 
+function importBackupFile(file) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    let arr;
+    try {
+      const parsed = JSON.parse(reader.result);
+      arr = Array.isArray(parsed) ? parsed : (parsed && parsed.records) || [];
+    } catch (e) {
+      toast("备份文件格式不正确");
+      return;
+    }
+    if (!arr.length) { toast("备份里没有记录"); return; }
+    const ids = new Set(records.map((r) => r.pid));
+    let added = 0;
+    arr.forEach((r) => {
+      const pid = r.pid || genPid();
+      if (ids.has(pid)) return;
+      ids.add(pid);
+      records.push({
+        pid: pid,
+        date: String(r.date || "").slice(0, 10),
+        type: r.type === "收入" ? "收入" : "支出",
+        category: r.category || "其他",
+        amount: Number(r.amount) || 0,
+        note: r.note || "",
+        created_at: r.created_at || new Date().toISOString(),
+      });
+      added++;
+    });
+    save();
+    toast(added ? `已导入 ${added} 条记录` : "备份与现有记录一致，没有新增");
+    renderAll();
+  };
+  reader.readAsText(file);
+}
+
 function shareToPc() {
   if (records.length === 0) { toast("还没有记录可发送"); return; }
   const wb = buildWorkbook();
@@ -324,6 +360,16 @@ function bindEvents() {
   document.getElementById("json-btn").addEventListener("click", () => {
     const blob = new Blob([JSON.stringify(records, null, 2)], { type: "application/json" });
     downloadBlob(blob, "记账备份_" + todayISO() + ".json");
+  });
+  document.getElementById("restore-btn").addEventListener("click", () => {
+    const input = document.getElementById("restore-file");
+    input.value = "";
+    input.click();
+  });
+  document.getElementById("restore-file").addEventListener("change", (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (f) importBackupFile(f);
+    e.target.value = "";
   });
   document.getElementById("clear-btn").addEventListener("click", () => {
     if (confirm("确定清空本机所有记录？")) { records = []; save(); toast("已清空"); renderAll(); }
