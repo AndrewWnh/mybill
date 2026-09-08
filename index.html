@@ -28,7 +28,7 @@
       padding: 14px 18px 16px; border-radius: 0 0 18px 18px; }
     header .row { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; }
     header h1 { margin: 0; font-size: 18px; font-weight: 700; }
-    header .sub { opacity: .92; font-size: 12px; margin-top: 2px; }
+    header .sub { opacity: .94; font-size: 13px; margin-top: 4px; font-weight: 600; }
     header .month { text-align: right; }
     header .month .label { font-size: 11px; opacity: .85; }
     header .month .value { font-size: 22px; font-weight: 700; }
@@ -36,12 +36,32 @@
     .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px;
       padding: 14px; margin-bottom: 14px; }
     .card h3 { margin: 0 0 12px; font-size: 15px; }
-    label { display: block; font-size: 12px; color: var(--muted); margin: 10px 0 4px; }
+    label { display: block; font-size: 12px; color: var(--muted); margin: 12px 0 6px; }
     input, select, button { font: inherit; color: inherit; }
-    input[type="date"], input[type="month"], input[type="text"], input[type="number"], select {
-      width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px;
-      background: #fff; font-size: 15px; }
-    input:focus, select:focus { outline: 2px solid rgba(11,154,110,.35); border-color: var(--green); }
+    input[type="date"], input[type="month"], input[type="text"], input[type="number"] {
+      width: 100%; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px;
+      background: #fff; font-size: 14px; }
+    input:focus { outline: 2px solid rgba(11,154,110,.35); border-color: var(--green); }
+    :root { --dd-pad-y: 8px; --dd-font: 14px; }
+    body[data-dd="s"] { --dd-pad-y: 4px; --dd-font: 13px; }
+    body[data-dd="l"] { --dd-pad-y: 12px; --dd-font: 15px; }
+    .dd { position: relative; }
+    .dd-trigger { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      padding: var(--dd-pad-y) 10px; border: 1px solid var(--line); border-radius: 9px; background: #fff;
+      font-size: var(--dd-font); color: var(--text); cursor: pointer; text-align: left; }
+    .dd-trigger .dd-value { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .dd-chevron { flex: 0 0 auto; width: 15px; height: 15px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%237a828c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") center/15px no-repeat; transition: transform .18s; }
+    .dd.open .dd-chevron { transform: rotate(180deg); }
+    .dd-panel { display: none; position: absolute; top: 100%; left: 0; right: 0; margin-top: 6px; z-index: 30;
+      border: 1px solid var(--line); border-radius: 10px; background: #fff; box-shadow: 0 8px 20px rgba(0,0,0,.12);
+      max-height: calc((var(--dd-font) * 1.5 + var(--dd-pad-y) * 2 + 1px) * 5); overflow-y: auto; overflow-x: hidden; }
+    .dd.open .dd-panel { display: block; }
+    .dd-opt { display: flex; width: 100%; align-items: center; padding: var(--dd-pad-y) 12px; border: none; background: #fff;
+      font-size: var(--dd-font); color: var(--text); text-align: left; cursor: pointer; border-bottom: 1px solid #f0f1f3; }
+    .dd-opt:last-child { border-bottom: none; }
+    .dd-opt.selected { background: #eef6f3; color: var(--green-dark); font-weight: 600; }
+    .dd-opt:active { background: #f0f1f3; }
     .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .seg { display: flex; gap: 8px; margin-top: 4px; }
     .seg button { flex: 1; padding: 9px; border: 1px solid var(--line); border-radius: 10px;
@@ -69,7 +89,7 @@
     .metrics .m .l { font-size: 11px; color: var(--muted); margin-top: 2px; }
     .chart-box { position: relative; height: 220px; margin-top: 6px; }
     .pill { display: inline-block; background: #eef6f3; color: var(--green-dark);
-      border-radius: 999px; padding: 3px 10px; font-size: 12px; }
+      border-radius: 999px; padding: 2px 9px; font-size: 12px; }
     .bottomnav { position: fixed; left: 0; right: 0; bottom: 0; background: #fff;
       border-top: 1px solid var(--line); display: flex; padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); }
     .bottomnav button { flex: 1; background: none; border: none; font-size: 11px; color: var(--muted);
@@ -83,9 +103,40 @@
       opacity: 0; pointer-events: none; transition: opacity .2s; max-width: 90%; text-align: center; }
     #toast.show { opacity: 1; }
     .hint { font-size: 13px; color: var(--muted); }
+    .version { text-align: center; color: var(--muted); font-size: 12px; padding: 8px 0 10px; }
     .steps { margin: 6px 0 0; padding-left: 20px; font-size: 14px; }
-    .steps li { margin: 4px 0; }
+    .steps li { margin: 6px 0; }
     .toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f0f1f3; }
+    .menu-item { display: flex; align-items: center; gap: 12px; padding: 13px 2px; border-bottom: 1px solid #f0f1f3; cursor: pointer; }
+    .menu-item:last-child { border-bottom: none; }
+    .menu-item .mi-ic { font-size: 20px; }
+    .menu-item .mi-t { font-size: 15px; font-weight: 600; }
+    .menu-item .mi-arrow { margin-left: auto; color: var(--muted); font-size: 20px; }
+    .subnav { display: flex; align-items: center; gap: 10px; background: var(--green); color: #fff; border-radius: 12px; padding: 11px 12px; margin-bottom: 14px; }
+    .subnav .back-btn { background: none; border: none; color: #fff; font-size: 16px; cursor: pointer; padding: 0 4px 0 0; }
+    .subnav span { font-size: 15px; font-weight: 600; }
+    .field-inline { display: flex; align-items: center; gap: 8px; }
+    .field-inline .dd { flex: 1; margin: 0; }
+    .bal-pill { flex: 0 0 auto; background: #eef6f3; color: var(--green-dark); border-radius: 999px;
+      padding: 6px 11px; font-size: 13px; font-weight: 700; white-space: nowrap; }
+    .plat-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+    .platform-chip { flex: 0 0 auto; background: #f3f8f6; border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; min-width: 86px; text-align: center; }
+    .platform-chip .p { font-size: 12px; color: var(--muted); }
+    .platform-chip .b { font-size: 15px; font-weight: 700; margin-top: 1px; white-space: nowrap; }
+    .bal-line { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 13px; color: var(--muted); }
+    .bal-line .val { font-weight: 700; color: var(--text); }
+    .addrow { display: flex; gap: 8px; margin-top: 10px; }
+    .addrow input { flex: 1; }
+    .addrow .btn-ghost { width: auto; padding: 10px 14px; white-space: nowrap; }
+    .addrow2 { display: grid; grid-template-columns: 1fr 120px auto; gap: 8px; margin-top: 10px; }
+    .addrow2 input { width: 100%; }
+    .addrow2 .btn-ghost { width: auto; padding: 10px 14px; white-space: nowrap; }
+    .cat-row { display: flex; align-items: center; justify-content: space-between; padding: 9px 2px; border-bottom: 1px solid #f0f1f3; }
+    .cat-row:last-child { border-bottom: none; }
+    .cat-row .del { border: none; background: none; color: var(--muted); font-size: 18px; cursor: pointer; padding: 2px 6px; }
+    .acct-info { display: flex; flex-direction: column; }
+    .acct-info .acct-name { font-weight: 600; }
+    .acct-info .muted { font-size: 12px; margin-top: 2px; }
   </style>
 </head>
 <body>
@@ -94,7 +145,7 @@
       <div class="row">
         <div>
           <h1>我的记账本</h1>
-          <div class="sub" id="header-sub">· 数据只存在你的手机上</div>
+          <div class="sub" id="header-balance">总余额 ¥0.00</div>
         </div>
         <div class="month">
           <div class="label" id="month-label">本月支出</div>
@@ -115,10 +166,21 @@
             <button class="on" data-t="支出">支出</button>
             <button data-t="收入">收入</button>
           </div>
+          <label>账户</label>
+          <div class="field-inline">
+            <div class="dd" id="f-account">
+              <button type="button" class="dd-trigger"><span class="dd-value"></span><span class="dd-chevron"></span></button>
+              <div class="dd-panel"></div>
+            </div>
+            <span class="bal-pill" id="account-balance">¥0.00</span>
+          </div>
           <label>金额（元）</label>
           <input type="number" id="f-amount" class="amount-input" inputmode="decimal" step="0.01" min="0" placeholder="0.00">
           <label>分类</label>
-          <select id="f-cat"></select>
+          <div class="dd" id="f-cat">
+            <button type="button" class="dd-trigger"><span class="dd-value"></span><span class="dd-chevron"></span></button>
+            <div class="dd-panel"></div>
+          </div>
           <label>事项 / 备注</label>
           <input type="text" id="f-note" placeholder="例如：午饭、地铁">
           <div style="height:14px"></div>
@@ -133,6 +195,10 @@
       <!-- 明细 -->
       <section class="tab" id="tab-list">
         <div class="card">
+          <h3>账户余额</h3>
+          <div class="plat-scroll" id="account-summary"></div>
+        </div>
+        <div class="card">
           <h3>筛选</h3>
           <div class="grid2">
             <div>
@@ -141,13 +207,17 @@
             </div>
             <div>
               <label>类型</label>
-              <select id="s-type">
-                <option>全部</option><option>支出</option><option>收入</option>
-              </select>
+              <div class="dd" id="s-type">
+                <button type="button" class="dd-trigger"><span class="dd-value"></span><span class="dd-chevron"></span></button>
+                <div class="dd-panel"></div>
+              </div>
             </div>
           </div>
           <label>分类</label>
-          <select id="s-cat"><option>全部</option></select>
+          <div class="dd" id="s-cat">
+            <button type="button" class="dd-trigger"><span class="dd-value"></span><span class="dd-chevron"></span></button>
+            <div class="dd-panel"></div>
+          </div>
         </div>
         <div class="card">
           <h3 id="list-total">明细</h3>
@@ -162,15 +232,17 @@
           <div class="grid2">
             <div>
               <label>时间范围</label>
-              <select id="st-range">
-                <option>本月</option><option>近 3 月</option><option>今年</option><option>全部</option>
-              </select>
+              <div class="dd" id="st-range">
+                <button type="button" class="dd-trigger"><span class="dd-value"></span><span class="dd-chevron"></span></button>
+                <div class="dd-panel"></div>
+              </div>
             </div>
             <div>
               <label>统计方式</label>
-              <select id="st-period">
-                <option>按日</option><option>按周</option><option>按月</option><option>按年</option>
-              </select>
+              <div class="dd" id="st-period">
+                <button type="button" class="dd-trigger"><span class="dd-value"></span><span class="dd-chevron"></span></button>
+                <div class="dd-panel"></div>
+              </div>
             </div>
           </div>
           <div class="metrics" id="stats-metrics" style="margin-top:12px"></div>
@@ -185,36 +257,102 @@
         </div>
       </section>
 
-      <!-- 同步 / 导出 -->
-      <section class="tab" id="tab-sync">
-        <div class="card">
-          <h3>同步到电脑</h3>
-          <p class="hint">你的数据一直存在手机本地。要把数据给电脑，就生成一个文件发过去，电脑端会自动接收并更新显示。</p>
-          <div style="height:10px"></div>
-          <button class="btn-primary" id="share-btn">📤 生成文件并发送到电脑</button>
-          <div style="height:10px"></div>
-          <button class="btn-ghost" id="download-btn">⬇️ 下载 .xlsx 到手机</button>
-          <div style="height:10px"></div>
-          <button class="btn-ghost" id="json-btn">⬇️ 下载备份 (.json)</button>
-          <div style="height:10px"></div>
-          <button class="btn-ghost" id="restore-btn">⬆️ 导入备份 (.json)</button>
-          <input type="file" id="restore-file" accept=".json" hidden>
+      <!-- 设置 -->
+      <section class="tab" id="tab-settings">
+        <div id="settings-home">
+          <div class="card">
+            <h3>设置</h3>
+            <div class="menu-item" data-sub="set-sync"><span class="mi-ic">📤</span><span class="mi-t">同步与备份</span><span class="mi-arrow">›</span></div>
+            <div class="menu-item" data-sub="set-accounts"><span class="mi-ic">💳</span><span class="mi-t">账户管理</span><span class="mi-arrow">›</span></div>
+            <div class="menu-item" data-sub="set-cats"><span class="mi-ic">🏷️</span><span class="mi-t">分类设置</span><span class="mi-arrow">›</span></div>
+            <div class="menu-item" data-sub="set-ui"><span class="mi-ic">🎨</span><span class="mi-t">界面设置</span><span class="mi-arrow">›</span></div>
+          </div>
+          <p class="hint" style="padding:0 6px">设置里的改动都会保存在你手机本地。</p>
+          <p class="version">我的记账本 V2.0.0</p>
         </div>
-        <div class="card">
-          <h3>电脑端怎么接收</h3>
-          <ol class="steps">
-            <li>电脑上双击运行 <b>run.bat</b>。</li>
-            <li>手机连上电脑热点（或同一 WiFi）。</li>
-            <li>把你生成的文件发到电脑（微信/QQ/浏览器上传都行），电脑会自动更新并显示。</li>
-          </ol>
-          <div class="hint" id="pc-url" style="margin-top:8px"></div>
+
+        <!-- 子页：同步与备份 -->
+        <div class="subpage" id="set-sync" hidden>
+          <div class="subnav"><button class="back-btn">‹ 返回</button><span>同步与备份</span></div>
+          <div class="card">
+            <h3>如何同步 / 备份</h3>
+            <ol class="steps">
+              <li><b>备份到电脑</b>：点下方「生成增量备份」，把文件发到电脑（微信/QQ），放到电脑的 <b>sync_inbox</b> 文件夹即可自动导入。</li>
+              <li><b>备份到网盘</b>：点「生成增量备份」后，用系统分享选择网盘（如坚果云/百度网盘）保存。</li>
+              <li><b>增量式备份</b>：每次都只包含<b>新增</b>的记录，已备份的不重复，所以不会越存越大。</li>
+              <li><b>导入备份</b>：换新设备时，点「导入备份」选择保存的 .json 文件，会自动合并。</li>
+            </ol>
+            <div class="toggle-row"><span>备份状态</span><span id="backup-status">已备份 0/0 笔</span></div>
+          </div>
+          <div class="card">
+            <h3>备份 / 导出</h3>
+            <button class="btn-primary" id="inc-backup-btn">📤 生成增量备份（发到电脑/网盘）</button>
+            <div style="height:10px"></div>
+            <button class="btn-ghost" id="full-backup-btn">⬇️ 下载完整备份 (.json)</button>
+            <div style="height:10px"></div>
+            <button class="btn-ghost" id="dl-xlsx-btn">⬇️ 下载 .xlsx 报表到手机</button>
+            <div style="height:10px"></div>
+            <button class="btn-ghost" id="restore-btn">⬆️ 导入备份 (.json)</button>
+            <input type="file" id="restore-file" accept=".json" hidden>
+          </div>
+          <div class="card">
+            <h3>数据</h3>
+            <div class="toggle-row"><span>当前记录数</span><span id="rec-count">0</span></div>
+            <div class="toggle-row" style="border:none">
+              <span class="expense">清空本机数据</span>
+              <button class="btn-ghost" id="clear-btn" style="width:auto;padding:6px 14px">清空</button>
+            </div>
+          </div>
         </div>
-        <div class="card">
-          <h3>数据</h3>
-          <div class="toggle-row"><span>当前记录数</span><span id="rec-count">0</span></div>
-          <div class="toggle-row" style="border:none">
-            <span class="expense">清空本机数据</span>
-            <button class="btn-ghost" id="clear-btn" style="width:auto;padding:6px 14px">清空</button>
+
+        <!-- 子页：账户管理 -->
+        <div class="subpage" id="set-accounts" hidden>
+          <div class="subnav"><button class="back-btn">‹ 返回</button><span>账户管理</span></div>
+          <div class="card">
+            <h3>我的账户</h3>
+            <p class="hint">管理记账用到的账户，比如微信、支付宝、银行卡。添加时填一下初始余额，之后每一笔会自动结算。</p>
+            <div id="account-list"></div>
+            <div class="addrow2">
+              <input type="text" id="new-account" placeholder="账户名称，例如：招商银行卡">
+              <input type="number" id="new-account-init" inputmode="decimal" step="0.01" placeholder="初始余额">
+              <button class="btn-ghost" id="add-account-btn">添加</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 子页：分类设置 -->
+        <div class="subpage" id="set-cats" hidden>
+          <div class="subnav"><button class="back-btn">‹ 返回</button><span>分类设置</span></div>
+          <div class="card">
+            <h3>支出分类</h3>
+            <div id="exp-cat-list"></div>
+            <div class="addrow">
+              <input type="text" id="new-exp-cat" placeholder="新增支出分类">
+              <button class="btn-ghost" id="add-exp-cat-btn">添加</button>
+            </div>
+          </div>
+          <div class="card">
+            <h3>收入分类</h3>
+            <div id="inc-cat-list"></div>
+            <div class="addrow">
+              <input type="text" id="new-inc-cat" placeholder="新增收入分类">
+              <button class="btn-ghost" id="add-inc-cat-btn">添加</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 子页：界面设置 -->
+        <div class="subpage" id="set-ui" hidden>
+          <div class="subnav"><button class="back-btn">‹ 返回</button><span>界面设置</span></div>
+          <div class="card">
+            <h3>下拉选项卡</h3>
+            <label>下拉选项卡大小</label>
+            <div class="seg" id="dd-size-seg">
+              <button class="on" data-s="s">紧凑</button>
+              <button data-s="m">标准</button>
+              <button data-s="l">较大</button>
+            </div>
+            <p class="hint" style="margin-top:10px">修改后立即生效，并保存在手机本地。</p>
           </div>
         </div>
       </section>
@@ -224,7 +362,7 @@
       <button data-tab="tab-add" class="on"><span class="ic">✏️</span>记一笔</button>
       <button data-tab="tab-list"><span class="ic">📋</span>明细</button>
       <button data-tab="tab-stats"><span class="ic">📊</span>统计</button>
-      <button data-tab="tab-sync"><span class="ic">🔁</span>同步</button>
+      <button data-tab="tab-settings"><span class="ic">⚙️</span>设置</button>
     </nav>
   </div>
   <div id="toast"></div>
